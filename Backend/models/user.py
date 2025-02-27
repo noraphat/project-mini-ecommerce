@@ -1,9 +1,10 @@
 from database import get_connection
 
-# 🚀 Query สำหรับ Insert User
+# 🚀 Query สำหรับ Insert User และ Return User ที่เพิ่ง Insert
 def create_user(user):
     conn = get_connection()
     with conn.cursor() as cursor:
+        # 💾 Insert User
         sql = """
             INSERT INTO users (first_name, last_name, email, phone, address, username, password)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -18,7 +19,18 @@ def create_user(user):
             user.password
         ))
         conn.commit()
+        
+        # 🔍 ดึงข้อมูล User ที่เพิ่ง Insert มาเพื่อตอบกลับ
+        user_id = cursor.lastrowid  # ได้ `user_id` ที่เพิ่ง Insert
+        cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
+        new_user = cursor.fetchone()
+        
+        # 🎨 สร้าง full_name ก่อน Return
+        new_user['full_name'] = f"{new_user['first_name']} {new_user['last_name']}"
+
     conn.close()
+    return new_user  # 🔥 Return ครบทุก Field
+
 
 # 🚀 Query สำหรับ Select Users ทั้งหมด
 def get_users():

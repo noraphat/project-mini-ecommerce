@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, EmailStr
+from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
 from datetime import datetime
 
@@ -13,23 +13,33 @@ class UserCreate(BaseModel):
     password: str = Field(..., min_length=8)
 
     # ✨ Custom Validation: เช็คว่าชื่อห้ามเป็น "admin"
-    @field_validator('username')
-    def username_must_not_be_admin(cls, v):
-        if v.lower() == 'admin':
+    @model_validator(mode='before')
+    def validate_username(cls, values):
+        # 🔥 เช็คว่า username ห้ามเป็น "admin"
+        if values.get('username', '').lower() == 'admin':
             raise ValueError('Username cannot be "admin"')
-        return v
+        return values
 
 # 🎨 Schema สำหรับการแสดงผล User
 class User(BaseModel):
     user_id: int
     first_name: str
     last_name: str
-    full_name: str
-    email: str
+    full_name: Optional[str]  # ต้องเป็น Optional เพื่อให้กำหนดค่าใหม่ได้
+    email: EmailStr
     phone: Optional[str] = Field(None, pattern="^0[0-9]{9}$")  # เบอร์โทรไทย 10 หลัก
     address: Optional[str]
     username: str
     created_at: datetime
 
+    # 🔥 ใช้ model_validator แทน field_validator
+    @model_validator(mode='before')
+    def generate_full_name(cls, values):
+        # 🔥 แก้ไขให้เข้าถึงค่าได้ถูกต้อง
+        first_name = values.get('first_name', '')
+        last_name = values.get('last_name', '')
+        values['full_name'] = f"{first_name} {last_name}"
+        return values
+
     class Config:
-        orm_mode = True
+        from_attributes = True  # 🔥 แก้ไขจาก orm_mode เป็น from_attributes (Pydantic V2)

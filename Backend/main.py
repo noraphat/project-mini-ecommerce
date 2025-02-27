@@ -14,9 +14,10 @@ def create_user(user: user_schema.UserCreate):
         if u['email'] == user.email:
             raise HTTPException(status_code=400, detail="Email already registered")
 
-    # 💾 Insert ข้อมูล
-    user_model.create_user(user)
-    return user
+    # 💾 Insert ข้อมูลและ Return User ที่เพิ่งสร้าง
+    new_user = user_model.create_user(user)
+    return new_user  # 🔥 Return User ที่มีครบทุก Field
+
 
 # 🎨 Endpoint สำหรับ Get Users ทั้งหมด
 @app.get("/users/", response_model=List[user_schema.User])
