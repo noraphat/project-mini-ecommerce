@@ -1,21 +1,47 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, func  # สร้าง Column ของ Table ฬ ใช้สร้าง Column ที่แมพกับฟิลด์ใน MySQL
-from database import Base # Import Base จาก database.py > เพื่อใช้เป็น Class แม่ในการสร้าง Model
+from database import get_connection
 
-# 📦 สร้าง Model สำหรับ Table Users
-class User(Base):
-    __tablename__ = "users" # 🔖 ชื่อตารางใน MySQL
+# 🚀 Query สำหรับ Insert User
+def create_user(user):
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        sql = """
+            INSERT INTO users (first_name, last_name, email, phone, address, username, password)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(sql, (
+            user.first_name,
+            user.last_name,
+            user.email,
+            user.phone,
+            user.address,
+            user.username,
+            user.password
+        ))
+        conn.commit()
+    conn.close()
 
-    user_id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
-    email = Column(String(100), unique=True, nullable=False)
-    phone = Column(String(15), unique=True, nullable=True)
-    address = Column(Text, nullable=True)
-    username = Column(String(50), unique=True, nullable=False)
-    password = Column(String(255), nullable=False)
-    created_at = Column(DateTime, default=func.now(), nullable=False)
+# 🚀 Query สำหรับ Select Users ทั้งหมด
+def get_users():
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        sql = "SELECT * FROM users"
+        cursor.execute(sql)
+        users = cursor.fetchall()
+    conn.close()
+    return users
 
-    # สร้าง full_name โดยใช้ Property (ไม่ได้เก็บใน Database)
-    @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+# 🚀 Query สำหรับ Select User โดยใช้ user_id
+def get_user_by_id(user_id: int):
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        sql = "SELECT * FROM users WHERE user_id = %s"
+        cursor.execute(sql, (user_id,))
+        user = cursor.fetchone()
+        
+        # 🔥 คำนวณ full_name ในระดับ Model
+        if user:
+            user['full_name'] = f"{user['first_name']} {user['last_name']}"
+
+    conn.close()
+    return user
+
