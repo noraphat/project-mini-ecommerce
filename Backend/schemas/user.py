@@ -58,3 +58,5 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True  # 🔥 แก้ไขจาก orm_mode เป็น from_attributes (Pydantic V2)
+
+
