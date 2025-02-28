@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, model_validator, EmailStr
 from typing import Optional
 from datetime import datetime
 
-# 🎨 Schema สำหรับสร้าง User
+# 🚀 Schema สำหรับ Create (POST)
 class UserCreate(BaseModel):
     first_name: str = Field(..., min_length=2, max_length=50)
     last_name: str = Field(..., min_length=2, max_length=50)
@@ -20,8 +20,23 @@ class UserCreate(BaseModel):
             raise ValueError('Username cannot be "admin"')
         return values
 
-# 🎨 Schema สำหรับการแสดงผล User
-class User(BaseModel):
+
+# 🚀 Schema สำหรับ Update (PUT)
+class UserUpdate(BaseModel):
+    first_name: Optional[str] = Field(None, min_length=2, max_length=50)
+    last_name: Optional[str] = Field(None, min_length=2, max_length=50)
+    email: Optional[EmailStr]
+    phone: Optional[str] = Field(None, pattern="^0[0-9]{9}$")  # เบอร์โทรไทย 10 หลัก
+    address: Optional[str]
+    username: Optional[str] = Field(None, min_length=3, max_length=50)
+    password: Optional[str] = Field(None, min_length=8)
+
+    class Config:
+        from_attributes = True
+
+
+# 🚀 Schema สำหรับการแสดงผล User (Response)
+class UserResponse(BaseModel):
     user_id: int
     first_name: str
     last_name: str

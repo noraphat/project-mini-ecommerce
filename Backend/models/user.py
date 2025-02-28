@@ -1,6 +1,6 @@
 from database import get_connection
 
-# 🚀 Query สำหรับ Insert User และ Return User ที่เพิ่ง Insert
+# 🚀 CREATE: Insert User และ Return User ที่เพิ่ง Insert
 def create_user(user):
     conn = get_connection()
     with conn.cursor() as cursor:
@@ -32,17 +32,23 @@ def create_user(user):
     return new_user  # 🔥 Return ครบทุก Field
 
 
-# 🚀 Query สำหรับ Select Users ทั้งหมด
+# 🚀 READ: Select Users ทั้งหมด
 def get_users():
     conn = get_connection()
     with conn.cursor() as cursor:
         sql = "SELECT * FROM users"
         cursor.execute(sql)
         users = cursor.fetchall()
+        
+        # 🔥 คำนวณ full_name ในระดับ Model
+        for user in users:
+            user['full_name'] = f"{user['first_name']} {user['last_name']}"
+
     conn.close()
     return users
 
-# 🚀 Query สำหรับ Select User โดยใช้ user_id
+
+# 🚀 READ: Select User โดยใช้ user_id
 def get_user_by_id(user_id: int):
     conn = get_connection()
     with conn.cursor() as cursor:
@@ -57,3 +63,52 @@ def get_user_by_id(user_id: int):
     conn.close()
     return user
 
+
+# 🚀 UPDATE: แก้ไขข้อมูล User โดยใช้ user_id
+def update_user(user_id: int, user):
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        # 🔄 Update User
+        sql = """
+            UPDATE users 
+            SET first_name = %s, last_name = %s, email = %s, phone = %s, address = %s, username = %s, password = %s
+            WHERE user_id = %s
+        """
+        cursor.execute(sql, (
+            user.first_name,
+            user.last_name,
+            user.email,
+            user.phone,
+            user.address,
+            user.username,
+            user.password,
+            user_id
+        ))
+        conn.commit()
+        
+        # 🔍 ดึงข้อมูล User ที่ถูก Update มาเพื่อตอบกลับ
+        cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
+        updated_user = cursor.fetchone()
+        
+        # 🎨 สร้าง full_name ก่อน Return
+        if updated_user:
+            updated_user['full_name'] = f"{updated_user['first_name']} {updated_user['last_name']}"
+
+    conn.close()
+    return updated_user
+
+
+# 🚀 DELETE: ลบข้อมูล User โดยใช้ user_id
+def delete_user(user_id: int):
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        # ❌ ลบ User
+        sql = "DELETE FROM users WHERE user_id = %s"
+        cursor.execute(sql, (user_id,))
+        conn.commit()
+
+        # 🔄 ตรวจสอบว่ามีการลบหรือไม่
+        affected_rows = cursor.rowcount
+
+    conn.close()
+    return affected_rows > 0  # ✅ Return True ถ้าลบสำเร็จ
