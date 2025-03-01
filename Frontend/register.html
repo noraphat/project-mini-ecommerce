@@ -918,9 +918,9 @@
         <!-- Main js  -->
         <script src="js/main.js"></script>
         <script>
-            document.getElementById('register-form').addEventListener('submit', function(event) {
+            document.getElementById('register-form').addEventListener('submit', async function(event) {
                 event.preventDefault(); // ป้องกันการ reload หน้า
-        
+                
                 const formData = new FormData(event.target);
                 const data = {
                     first_name: formData.get('first_name'),
@@ -931,31 +931,33 @@
                     password: formData.get('password')
                 };
         
-                // ส่งข้อมูลไปยัง API FastAPI
-                fetch('http://localhost:8000/users/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
+                try {
+                    const response = await fetch('http://localhost:8000/users/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+        
+                    // ✅ ตรวจสอบว่าการสร้างสำเร็จ (201 Created)
+                    if (response.status === 201) {
+                        const responseData = await response.json();
+                        alert('User created successfully!');
+                        console.log('Success:', responseData);
                     } else {
-                        throw new Error('Failed to create user');
+                        // ❌ แจ้งเตือนถ้าไม่ได้ HTTP 201 Created
+                        const errorData = await response.json();
+                        alert('Failed to create user: ' + (errorData.detail || 'Unknown error'));
+                        console.error('Error:', errorData);
                     }
-                })
-                .then(data => {
-                    alert('User created successfully!');
-                    console.log('Success:', data);
-                })
-                .catch(error => {
+                } catch (error) {
                     alert('Failed to create user: ' + error.message);
                     console.error('Error:', error);
-                });
+                }
             });
         </script>
+        
         
 
 
