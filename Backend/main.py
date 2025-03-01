@@ -13,6 +13,7 @@ app = FastAPI(
 
 # 🔗 รวม Router เข้ากับ FastAPI App
 app.include_router(user_router.router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # สามารถเปลี่ยนเป็น ["http://localhost:5500"] ตาม Origin ของ Frontend ได้
