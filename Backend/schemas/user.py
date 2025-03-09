@@ -30,6 +30,7 @@ class UserUpdate(BaseModel):
     address: Optional[str]
     username: Optional[str] = Field(None, min_length=3, max_length=50)
     password: Optional[str] = Field(None, min_length=8)
+    role: Optional[str] = Field(None)  # ✅ เพิ่ม role
 
     class Config:
         from_attributes = True
