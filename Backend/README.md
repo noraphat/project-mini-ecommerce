@@ -16,18 +16,22 @@ cd project-mini-ecommerce\Backend
 ## 📂 โครงสร้างโปรเจกต์
 ```
 project-mini-ecommerce/
-├── Backend/
-│   ├── models/
-│   │   ├── user.py
-│   ├── routers/
-│   │   ├── user.py
-│   ├── schemas/
-│   │   ├── user.py
-│   ├── database.py
-│   ├── main.py
-│   ├── requirements.txt
-│
-├── Frontend/
+│── Backend/                       # 📂 ส่วนของ Backend (FastAPI)
+│   │── main.py                    # 🔥 FastAPI Entry Point
+│   │── database.py                # 🔗 เชื่อมต่อ MySQL
+│   │── auth.py                    # 🔒 จัดการ JWT Authentication
+│   │── models/                    # 📂 จัดการ Model ของ Database
+│   │   ├── user.py                # 👤 จัดการข้อมูล User
+│   │── routers/                   # 📂 API Endpoint
+│   │   ├── user.py                # 👤 API สำหรับ User Management
+│   │── schemas/                   # 📂 Pydantic Schemas
+│   │   ├── user.py                # 🏗️ Schema สำหรับ Validate User Data
+│── Vue/                           # 📂 ส่วนของ Frontend (Vue.js)
+│   │── my-vue-app/                # 🖥️ Vue Project
+│── .gitignore                     # 🚫 ไฟล์ที่ไม่ต้องการให้ Git ติดตาม
+│── requirements.txt               # 📜 รายการ Python Packages
+│── README.md                      # 📖 คำอธิบายโปรเจค
+
 ```
 
 ## 🛠️ การติดตั้ง Dependencies
