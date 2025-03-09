@@ -98,7 +98,7 @@ CREATE TABLE users (
     role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
+ALTER TABLE users MODIFY COLUMN role VARCHAR(10);
 --- Thai
 INSERT INTO users (first_name, last_name, email, phone, address, username, password, role, created_at) VALUES
 -- Admin 1 คน
