@@ -91,12 +91,36 @@ CREATE TABLE users (
     address TEXT,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users (first_name, last_name, email, phone, address, username, password, created_at) VALUES
-('John', 'Doe', 'john.doe@email.com', '0812345678', '123 Main St, Bangkok', 'user1', '12345678', NOW()),
-('Alice', 'Smith', 'alice.smith@email.com', '0898765432', '456 Central Rd, Chiang Mai', 'user2', '12345678', NOW());
+--- Thai
+INSERT INTO users (first_name, last_name, email, phone, address, username, password, role, created_at) VALUES
+-- Admin 1 คน
+('กิตติ', 'สมประเสริฐ', 'admin@email.com', '0901234567', '99 อาคารสำนักงาน กรุงเทพฯ', 'admin1', 'adminpassword', 'admin', NOW()),
+
+-- User ทั่วไป 5 คน
+('นพดล', 'พงศ์สวัสดิ์', 'nopadol@email.com', '0812345678', '123 ถนนเจริญนคร กรุงเทพฯ', 'user1', '12345678', 'user', NOW()),
+('สุภาวดี', 'จันทร์เพ็ญ', 'supawadee@email.com', '0898765432', '456 ถนนนิมมานเหมินท์ เชียงใหม่', 'user2', '12345678', 'user', NOW()),
+('วีระชัย', 'แซ่ตั้ง', 'weerachai@email.com', '0923456789', '789 ซอยบางลา ภูเก็ต', 'user3', '12345678', 'user', NOW()),
+('ชุติมา', 'วิริยะกุล', 'chutima@email.com', '0956789123', '567 ซอยเทพประสิทธิ์ พัทยา', 'user4', '12345678', 'user', NOW()),
+('ปริญญา', 'โภคินธร', 'parinya@email.com', '0987654321', '321 ถนนมิตรภาพ ขอนแก่น', 'user5', '12345678', 'user', NOW());
+
+---Eng
+INSERT INTO users (first_name, last_name, email, phone, address, username, password, role, created_at) VALUES
+-- Admin 1 คน
+('Admin', 'User', 'admin@email.com', '0901234567', '789 Admin St, Bangkok', 'admin1', 'adminpassword', 'admin', NOW()),
+
+-- User ทั่วไป 5 คน
+('John', 'Doe', 'john.doe@email.com', '0812345678', '123 Main St, Bangkok', 'user1', '12345678', 'user', NOW()),
+('Alice', 'Smith', 'alice.smith@email.com', '0898765432', '456 Central Rd, Chiang Mai', 'user2', '12345678', 'user', NOW()),
+('Bob', 'Brown', 'bob.brown@email.com', '0923456789', '789 West St, Phuket', 'user3', '12345678', 'user', NOW()),
+('Charlie', 'Johnson', 'charlie.j@email.com', '0956789123', '567 East Rd, Pattaya', 'user4', '12345678', 'user', NOW()),
+('David', 'Lee', 'david.lee@email.com', '0987654321', '321 South Ave, Khon Kaen', 'user5', '12345678', 'user', NOW());
+
+
+
 ```
 
 ---

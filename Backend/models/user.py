@@ -1,13 +1,25 @@
 from database import get_connection
+from passlib.context import CryptContext
+
+# ใช้ bcrypt ในการ Hash Password
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def hash_password(password: str):
+    """ 🔒 แปลงรหัสผ่านเป็น Hash ก่อนบันทึก """
+    return pwd_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+    """ 🔍 ตรวจสอบรหัสผ่านที่ผู้ใช้กรอกกับ Hash ในฐานข้อมูล """
+    return pwd_context.verify(plain_password, hashed_password)
 
 # 🚀 CREATE: Insert User และ Return User ที่เพิ่ง Insert
 def create_user(user):
     conn = get_connection()
     with conn.cursor() as cursor:
-        # 💾 Insert User
+        # 💾 Insert User (Hash Password ก่อน)
         sql = """
-            INSERT INTO users (first_name, last_name, email, phone, address, username, password)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO users (first_name, last_name, email, phone, address, username, password, role)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """
         cursor.execute(sql, (
             user.first_name,
@@ -16,7 +28,8 @@ def create_user(user):
             user.phone,
             user.address,
             user.username,
-            user.password
+            hash_password(user.password),  # 🔒 Hash Password ก่อนเก็บลงฐานข้อมูล
+            user.role
         ))
         conn.commit()
         
@@ -30,7 +43,6 @@ def create_user(user):
 
     conn.close()
     return new_user  # 🔥 Return ครบทุก Field
-
 
 # 🚀 READ: Select Users ทั้งหมด
 def get_users():
@@ -47,7 +59,6 @@ def get_users():
     conn.close()
     return users
 
-
 # 🚀 READ: Select User โดยใช้ user_id
 def get_user_by_id(user_id: int):
     conn = get_connection()
@@ -63,6 +74,19 @@ def get_user_by_id(user_id: int):
     conn.close()
     return user
 
+# 🚀 READ: Select User โดยใช้ Username (ใช้สำหรับ Login)
+def get_user_by_username(username: str):
+    conn = get_connection()
+    with conn.cursor() as cursor:
+        sql = "SELECT * FROM users WHERE username = %s"
+        cursor.execute(sql, (username,))
+        user = cursor.fetchone()
+        
+        if user:
+            user['full_name'] = f"{user['first_name']} {user['last_name']}"
+
+    conn.close()
+    return user
 
 # 🚀 UPDATE: แก้ไขข้อมูล User โดยใช้ user_id
 def update_user(user_id: int, user):
@@ -71,7 +95,7 @@ def update_user(user_id: int, user):
         # 🔄 Update User
         sql = """
             UPDATE users 
-            SET first_name = %s, last_name = %s, email = %s, phone = %s, address = %s, username = %s, password = %s
+            SET first_name = %s, last_name = %s, email = %s, phone = %s, address = %s, username = %s, password = %s, role = %s
             WHERE user_id = %s
         """
         cursor.execute(sql, (
@@ -81,7 +105,8 @@ def update_user(user_id: int, user):
             user.phone,
             user.address,
             user.username,
-            user.password,
+            hash_password(user.password),  # 🔒 Hash Password ใหม่ (ถ้ามีการอัปเดต)
+            user.role,
             user_id
         ))
         conn.commit()
@@ -96,7 +121,6 @@ def update_user(user_id: int, user):
 
     conn.close()
     return updated_user
-
 
 # 🚀 DELETE: ลบข้อมูล User โดยใช้ user_id
 def delete_user(user_id: int):
