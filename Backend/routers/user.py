@@ -1,6 +1,8 @@
 # routers/user.py
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from auth import create_access_token, verify_password
 from typing import List
 from schemas import user as user_schema
 from models import user as user_model
@@ -10,6 +12,22 @@ router = APIRouter(
     prefix="/users",
     tags=["Users"]
 )
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+@router.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """ ตรวจสอบ Username/Password และคืนค่า JWT Token """
+    user = next((u for u in user_model.get_users() if u["username"] == form_data.username), None)
+
+    if not user or not verify_password(form_data.password, user["password"]):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    # สร้าง JWT Token
+    access_token = create_access_token(data={"sub": user["username"], "role": user["role"]})
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
 
 # 🎨 Endpoint สำหรับ Insert User
 @router.post("/", response_model=user_schema.UserResponse, status_code=status.HTTP_201_CREATED)
